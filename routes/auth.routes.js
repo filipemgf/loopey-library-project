@@ -29,11 +29,6 @@ router.get('/login', (req, res, next) => {
 	res.render('auth/login');
 });
 
-//GET user-profile
-router.get('/user-profile', (req, res) => {
-	res.render('auth/user-profile.hbs', req.session.currentUser);
-});
-
 router.post('/login', async (req, res, next) => {
 	try {
 		const { email, password } = req.body;
@@ -59,6 +54,24 @@ router.post('/login', async (req, res, next) => {
 		} else {
 			res.send('Unexpected error.');
 		}
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+});
+
+//GET user-profile
+router.get('/user-profile', (req, res) => {
+	res.render('auth/user-profile.hbs', req.session.currentUser);
+});
+
+//POST logout
+router.post('/logout', async (req, res, next) => {
+	try {
+		req.session.destroy((error) => {
+			if (error) next(error);
+			res.redirect('/');
+		});
 	} catch (error) {
 		console.log(error);
 		next(error);
