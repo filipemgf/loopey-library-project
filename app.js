@@ -25,16 +25,9 @@ const projectName = 'library-project';
 app.locals.appTitle = `${capitalize(projectName)} created with IronLauncher`;
 
 // 👇 Start handling routes here
-<<<<<<< HEAD
 app.use('/', require('./routes/index.routes'));
 app.use('/', require('./routes/book.routes'));
 app.use('/', require('./routes/author.routes'));
-=======
-app.use("/", require("./routes/index.routes"));
-app.use("/", require("./routes/book.routes"));
-app.use("/", require("./routes/author.routes"));
-
->>>>>>> 07c06a4de4e910e2075676da501f75f221715483
 
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require('./error-handling')(app);
