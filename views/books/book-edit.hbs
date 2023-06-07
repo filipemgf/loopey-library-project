@@ -6,10 +6,22 @@
 		<input type='text' name='title' value='{{book.title}}' />
 	</label>
 
+<<<<<<< HEAD
 	<label>
 		Author:
 		<input type='text' name='author' value='{{book.author.name}}' />
 	</label>
+=======
+    <label> Author:
+        <select name="author">
+            {{#each authors}}
+                <option value={{this._id}}>
+                    {{this.name}}
+                </option>
+            {{/each}}
+        </select>
+    </label>
+>>>>>>> 07c06a4de4e910e2075676da501f75f221715483
 
 	<label>
 		Description:
