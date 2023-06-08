@@ -4,6 +4,10 @@ const router = express.Router();
 const Book = require('../models/Book.model');
 const Author = require('../models/Author.model');
 
+const isLoggedIn = require('../middleware/isLoggedIn');
+
+
+
 // READ: display all books
 router.get('/books', (req, res, next) => {
 	Book.find()
@@ -31,6 +35,15 @@ router.get('/books/create', (req, res, next) => {
 			console.log('error displaying book create form', e);
 			next(e);
 		});
+router.get("/books/create", isLoggedIn, (req, res, next) => {
+    Author.find()
+        .then( authorsFromDB => {
+            res.render("books/book-create", {authorsArr: authorsFromDB});
+        })
+        .catch( e => {
+            console.log("error displaying book create form", e);
+            next(e);
+        });
 });
 
 // CREATE: process form
@@ -41,6 +54,14 @@ router.post('/books/create', (req, res, next) => {
 		author: req.body.author,
 		rating: req.body.rating,
 	};
+router.post("/books/create", isLoggedIn, (req, res, next) => {
+
+    const newBook = {
+        title: req.body.title,
+        description: req.body.description,
+        author: req.body.author,
+        rating: req.body.rating
+    };
 
 	Book.create(newBook)
 		.then((newBook) => {
@@ -55,6 +76,8 @@ router.post('/books/create', (req, res, next) => {
 // UPDATE: display form
 router.get('/books/:bookId/edit', async (req, res, next) => {
 	const { bookId } = req.params;
+router.get('/books/:bookId/edit', isLoggedIn, async (req, res, next) => {
+    const { bookId } = req.params;
 
 	try {
 		const authors = await Author.find();
@@ -70,6 +93,9 @@ router.get('/books/:bookId/edit', async (req, res, next) => {
 router.post('/books/:bookId/edit', (req, res, next) => {
 	const { bookId } = req.params;
 	const { title, description, author, rating } = req.body;
+router.post('/books/:bookId/edit', isLoggedIn, (req, res, next) => {
+    const { bookId } = req.params;
+    const { title, description, author, rating } = req.body;
 
 	Book.findByIdAndUpdate(
 		bookId,
@@ -83,6 +109,8 @@ router.post('/books/:bookId/edit', (req, res, next) => {
 // DELETE: delete book
 router.post('/books/:bookId/delete', (req, res, next) => {
 	const { bookId } = req.params;
+router.post('/books/:bookId/delete', isLoggedIn, (req, res, next) => {
+    const { bookId } = req.params;
 
 	Book.findByIdAndDelete(bookId)
 		.then(() => res.redirect('/books'))

@@ -19,6 +19,9 @@ const app = express();
 require('./config')(app);
 require('./config/session.config')(app);
 
+require('./config/session.config')(app);
+
+
 // default value for title local
 const capitalize = require('./utils/capitalize');
 const projectName = 'library-project';

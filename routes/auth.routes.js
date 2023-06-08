@@ -5,6 +5,14 @@ const User = require('../models/User.model');
 
 router.get('/signup', async (req, res, next) => {
 	res.render('auth/signup.hbs');
+const router = express.Router();
+
+const saltRounds = 10;
+
+
+//GET /signup 
+router.get("/signup", (req, res, next) => {
+    res.render("auth/signup");
 });
 
 router.post('/signup', async (req, res, next) => {
@@ -60,9 +68,114 @@ router.post('/login', async (req, res, next) => {
 	}
 });
 
+//GET /login (display login form)
+router.get('/login', (req, res, next) => {
+	res.render('auth/login');
+});
+
+//POST /login (process login form)
+router.post('/login', (req, res, next) => {
+	const { email, password } = req.body;
+
+	if (email === '' || password === '') {
+		res
+			.status(400)
+			.render('auth/login', {
+				errorMessage: 'Please enter both, email and password to login.',
+			});
+		return;
+	}
+
+	User.findOne({ email: email })
+		.then((user) => {
+			if (!user) {
+				//user doesn't exist (mongoose returns "null")
+				res
+					.status(400)
+					.render('auth/login', {
+						errorMessage: 'Email is not registered. Try with other email.',
+					});
+				return;
+			} else if (bcryptjs.compareSync(password, user.passwordHash)) {
+				//login successful
+				req.session.currentUser = user; // store info in req.session (will be available in further requests)
+				res.render('auth/user-profile', { userDetails: user });
+			} else {
+				//login failed
+				res
+					.status(400)
+					.render('auth/login', { errorMessage: 'Incorrect credentials.' });
+			}
+		})
+		.catch((error) => {
+			console.log('error trying to login...', error);
+			next(error);
+		});
+});
+
+//POST /logout
+router.post('/logout', (req, res, next) => {
+	req.session.destroy((err) => {
+		if (err) next(err);
+		res.redirect('/'); // if logout sucessful, redirect to homepage
+	});
+});
+
+
+//GET /login (display login form)
+router.get("/login", (req, res, next) => {
+    res.render("auth/login");
+});
+
+
+
+//POST /login (process login form)
+router.post("/login", (req, res, next) => {
+    const { email, password } = req.body;
+
+    if (email === '' || password === '') {
+        res.status(400).render('auth/login', { errorMessage: 'Please enter both, email and password to login.' });
+        return;
+    }
+
+    User.findOne({email: email})
+        .then( user => {
+            if (!user) {
+                //user doesn't exist (mongoose returns "null")
+                res.status(400).render('auth/login', { errorMessage: 'Email is not registered. Try with other email.' });
+                return;
+            } else if (bcryptjs.compareSync(password, user.passwordHash)){
+                //login successful
+                req.session.currentUser = user; // store info in req.session (will be available in further requests)
+                res.render("auth/user-profile", {userDetails: user});
+            } else {
+                //login failed
+                res.status(400).render('auth/login', { errorMessage: 'Incorrect credentials.' });
+            }
+        })
+        .catch(error => {
+            console.log("error trying to login...", error);
+            next(error);
+        });
+
+});
+
+
+//POST /logout
+router.post("/logout", (req, res, next) => {
+    req.session.destroy(err => {
+        if (err) next(err);
+        res.redirect('/'); // if logout sucessful, redirect to homepage
+    });
+})
+
+
 //GET user-profile
 router.get('/user-profile', (req, res) => {
 	res.render('auth/user-profile.hbs', req.session.currentUser);
+});
+router.get('/user-profile', (req, res) => {
+    res.render("auth/user-profile", {userDetails: req.session.currentUser});
 });
 
 //POST logout
@@ -78,4 +191,4 @@ router.post('/logout', async (req, res, next) => {
 	}
 });
 
-module.exports = router;
+module.exports = router
